@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from openai import OpenAI
 from fastapi import FastAPI, Form, Request, WebSocket, Cookie
 from fastapi.templating import Jinja2Templates
@@ -72,3 +74,49 @@ async def chat(websocket: WebSocket, session_id: str):
         except Exception as e:
             await websocket.send_text(f'Error: {str(e)}')
             break
+@app.get("/image", response_class=HTMLResponse)
+async def image_page(request: Request, session_id: str = Cookie(default=None)):
+    if not session_id:
+        session_id = str(uuid.uuid4())
+        session = get_session(session_id)
+        response = templates.TemplateResponse("image.html", {
+            "request": request,
+            "image_history": session.get("image_history", []),
+            "session_id": session_id
+        })
+        response.set_cookie(key="session_id", value=session_id)
+        return response
+
+    session = get_session(session_id)
+    return templates.TemplateResponse("image.html", {
+        "request": request,
+        "image_history": session.get("image_history", []),
+        "session_id": session_id
+    })
+
+
+@app.post("/image", response_class=HTMLResponse)
+async def create_image(
+    request: Request,
+    user_input: Annotated[str, Form()],
+    session_id: str = Cookie(default=None)
+):
+    if not session_id:
+        session_id = str(uuid.uuid4())
+    session = get_session(session_id)
+
+    response = openai.images.generate(
+        prompt=user_input,
+        n=1,
+        size='256x256'
+    )
+    image_url = response.data[0].url
+
+    session["image_history"].append(image_url)
+
+    return templates.TemplateResponse("image.html", {
+        "request": request,
+        "image_url": image_url,
+        "image_history": session.get("image_history", []),
+        "session_id": session_id
+    })
