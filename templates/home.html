@@ -24,15 +24,18 @@
 </div>
 
 <script>
-  var websocketString = '';
-  if(window.location.hostname === '127.0.0.1'){
-    websocketString = "ws://localhost:8000/ws";
-  } else{
-      websocketString = `wss://${window.location.hostname}/ws`
+  // session_id is passed from FastAPI into template
+  const sessionId = "{{ session_id }}";
+
+  // Build WebSocket URL with session_id
+  let websocketString = '';
+  if (window.location.hostname === '127.0.0.1') {
+    websocketString = `ws://localhost:8000/ws/${sessionId}`;
+  } else {
+    websocketString = `wss://${window.location.hostname}/ws/${sessionId}`;
   }
 
-  const ws = new WebSocket( websocketString);
-
+  const ws = new WebSocket(websocketString);
 
   const sendButton = document.getElementById("sendButton");
   const userInput = document.getElementById("userInput");
