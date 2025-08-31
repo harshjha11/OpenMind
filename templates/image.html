@@ -5,13 +5,11 @@
   <h3 class="mb-3">Generate an Image with AI</h3>
 
   <div class="card shadow-sm">
-    <div class="card-header">
-      Image Generator
-    </div>
+    <div class="card-header">Image Generator</div>
     <div class="card-body">
       {% if image_url %}
         <div class="text-center mb-3">
-          <img src="{{ image_url }}" alt="Generated image" class="img-fluid rounded" style="max-height: 300px;" />
+          <img src="{{ image_url }}" class="img-fluid rounded" style="max-height: 300px;" />
           <div class="mt-2">
             <a href="{{ image_url }}" class="btn btn-outline-secondary btn-sm" download target="_blank">Download</a>
           </div>
@@ -45,8 +43,8 @@
   <div class="container">
     <form class="input-group" action="/image" method="POST">
       <input class="form-control" name="user_input" placeholder="Describe an image..." required />
-      <button class="btn btn-success" type="submit">Generate</button>
     </form>
+      <button class="btn btn-success mt-2" type="submit">Generate</button>
   </div>
 </div>
 {% endblock %}

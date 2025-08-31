@@ -24,18 +24,8 @@
 </div>
 
 <script>
-  // session_id is passed from FastAPI into template
   const sessionId = "{{ session_id }}";
-
-  // Build WebSocket URL with session_id
-  let websocketString = '';
-  if (window.location.hostname === '127.0.0.1') {
-    websocketString = `ws://localhost:8000/ws/${sessionId}`;
-  } else {
-    websocketString = `wss://${window.location.hostname}/ws/${sessionId}`;
-  }
-
-  const ws = new WebSocket(websocketString);
+  const ws = new WebSocket(`wss://${window.location.hostname}/ws/${sessionId}`);
 
   const sendButton = document.getElementById("sendButton");
   const userInput = document.getElementById("userInput");
@@ -48,9 +38,7 @@
     if (message) {
       const userDiv = document.createElement("div");
       userDiv.className = "chat-message user-input d-flex align-items-start";
-      userDiv.innerHTML = `
-        <img src="https://cdn-icons-png.flaticon.com/512/2202/2202112.png" class="avatar me-2" />
-        <div>${message}</div>`;
+      userDiv.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/2202/2202112.png" class="avatar me-2" /><div>${message}</div>`;
       chatHistory.appendChild(userDiv);
       chatHistory.scrollTop = chatHistory.scrollHeight;
 
@@ -62,12 +50,8 @@
   }
 
   sendButton.onclick = sendMessage;
-
   userInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   });
 
   ws.onmessage = function(event) {
@@ -77,9 +61,7 @@
     } else {
       const messageDiv = document.createElement("div");
       messageDiv.className = "chat-message ai-response d-flex align-items-start";
-      messageDiv.innerHTML = `
-        <img src="https://cdn-icons-png.flaticon.com/512/4712/4712100.png" class="avatar me-2" />
-        <div>${message}</div>`;
+      messageDiv.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/4712/4712100.png" class="avatar me-2" /><div>${message}</div>`;
       chatHistory.appendChild(messageDiv);
       lastUserMessageDiv = messageDiv;
       isNewUserInput = false;
