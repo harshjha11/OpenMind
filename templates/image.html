@@ -37,14 +37,24 @@
       </div>
     </div>
   {% endif %}
-</div>
 
-<div class="input-container">
-  <div class="container">
-    <form class="input-group" action="/image" method="POST">
-      <input class="form-control" name="user_input" placeholder="Describe an image..." required />
-    </form>
-      <button class="btn btn-success mt-2" type="submit">Generate</button>
+  <!-- Form -->
+  <div class="input-container mt-3">
+    <div class="container">
+      <form id="imageForm" class="input-group" action="/image" method="POST">
+        <input class="form-control" name="user_input" placeholder="Describe an image..." required />
+        <button class="btn btn-success" type="submit">Generate</button>
+      </form>
+    </div>
   </div>
 </div>
+
+<script>
+  const form = document.getElementById("imageForm");
+  form.addEventListener("submit", () => {
+    const btn = form.querySelector("button");
+    btn.disabled = true;
+    btn.innerText = "Generating...";
+  });
+</script>
 {% endblock %}
