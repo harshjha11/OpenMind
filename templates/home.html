@@ -1,0 +1,87 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-3">Talk to Harsh's Chatbot</h3>
+
+  <div class="chat-container" id="chatHistory">
+    {% for response in chat_responses %}
+      <div class="{{ 'chat-message user-input d-flex align-items-start' if loop.index0 is even else 'chat-message ai-response d-flex align-items-start' }}">
+        <img src="{{ 'https://cdn-icons-png.flaticon.com/512/2202/2202112.png' if loop.index0 is even else 'https://cdn-icons-png.flaticon.com/512/4712/4712100.png' }}" class="avatar me-2" />
+        <div>{{ response }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="input-container">
+  <div class="container">
+    <div class="input-group">
+      <input type="text" class="form-control" placeholder="Type a message..." id="userInput">
+      <button class="btn btn-primary" type="button" id="sendButton">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var websocketString = '';
+  if(window.location.hostname === '127.0.0.1'){
+    websocketString = "ws://localhost:8000/ws";
+  } else{
+      websocketString = `wss://${window.location.hostname}/ws`
+  }
+
+  const ws = new WebSocket( websocketString);
+
+
+  const sendButton = document.getElementById("sendButton");
+  const userInput = document.getElementById("userInput");
+  const chatHistory = document.getElementById("chatHistory");
+  let lastUserMessageDiv = null;
+  let isNewUserInput = true;
+
+  function sendMessage() {
+    const message = userInput.value.trim();
+    if (message) {
+      const userDiv = document.createElement("div");
+      userDiv.className = "chat-message user-input d-flex align-items-start";
+      userDiv.innerHTML = `
+        <img src="https://cdn-icons-png.flaticon.com/512/2202/2202112.png" class="avatar me-2" />
+        <div>${message}</div>`;
+      chatHistory.appendChild(userDiv);
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+
+      ws.send(message);
+      userInput.value = "";
+      isNewUserInput = true;
+      lastUserMessageDiv = null;
+    }
+  }
+
+  sendButton.onclick = sendMessage;
+
+  userInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  ws.onmessage = function(event) {
+    const message = event.data;
+    if (lastUserMessageDiv && !isNewUserInput) {
+      lastUserMessageDiv.querySelector('div').innerHTML += message;
+    } else {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = "chat-message ai-response d-flex align-items-start";
+      messageDiv.innerHTML = `
+        <img src="https://cdn-icons-png.flaticon.com/512/4712/4712100.png" class="avatar me-2" />
+        <div>${message}</div>`;
+      chatHistory.appendChild(messageDiv);
+      lastUserMessageDiv = messageDiv;
+      isNewUserInput = false;
+    }
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+  };
+</script>
+{% endblock %}

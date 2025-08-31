@@ -1,0 +1,52 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-3">Generate an Image with AI</h3>
+
+  <div class="card shadow-sm">
+    <div class="card-header">
+      Image Generator
+    </div>
+    <div class="card-body">
+      {% if image_url %}
+        <div class="text-center mb-3">
+          <img src="{{ image_url }}" alt="Generated image" class="img-fluid rounded" style="max-height: 300px;" />
+          <div class="mt-2">
+            <a href="{{ image_url }}" class="btn btn-outline-secondary btn-sm" download target="_blank">Download</a>
+          </div>
+        </div>
+      {% else %}
+        <p class="text-muted">No image generated yet. Submit a prompt below.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if image_history %}
+    <div class="mt-4">
+      <h5>Previous Generations</h5>
+      <div class="row row-cols-1 row-cols-md-3 g-3">
+        {% for img in image_history %}
+          <div class="col">
+            <div class="card h-100">
+              <img src="{{ img }}" class="card-img-top" alt="Previous Image">
+              <div class="card-body text-center">
+                <a href="{{ img }}" class="btn btn-sm btn-outline-primary" download target="_blank">Download</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<div class="input-container">
+  <div class="container">
+    <form class="input-group" action="/image" method="POST">
+      <input class="form-control" name="user_input" placeholder="Describe an image..." required />
+      <button class="btn btn-success" type="submit">Generate</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
